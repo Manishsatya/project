@@ -5,8 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDateTime;
-import java.util.Date;
- 
+
 @Entity
 @Table(name = "TICKETS")
 @Getter
@@ -14,73 +13,45 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Tickets {
- 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "TICKET_ID")
     private int ticketId;
- 
     @Column(name = "USER_ID")
     private int userId;
- 
     @Column(name = "CONNECTION_ID")
     private int connectionId;
- 
-   
+
     @Column(name = "CONNECTION_TYPE")
     private String connectionType;
- 
-    
+
     @Column(name = "SERVICE_TYPE")
     private String serviceType;
- 
     @Column(name = "DESCRIPTION")
     private String description;
- 
     @Column(name = "PINCODE")
     private int pincode;
-    
     @Column(name = "STATUS")
     private String status;
-    
     @Column(name = "ADDRESS")
     private String address;
- 
-    
+
     @Column(name = "PRIORITY")
     private String priority;
- 
     @Column(name = "ENGINEER_ID")
     private int engineerId;
- 
     @Column(name = "ASSIGNMENT_DATE")
-    private Date assignmentDate;
- 
+    private LocalDateTime assignmentDate;
     @Column(name = "CREATED_AT", updatable = false)
     private LocalDateTime createdAt;
- 
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
     }
-
-	@Column(name = "UPDATED_AT")
-    private Date updatedAt;
-    
+    @Column(name = "UPDATED_AT")
+    private LocalDateTime updatedAt;
     @Column(name = "LONGITUDE")
     private double longitude;
-    
     @Column(name = "LATITUDE")
     private double latitude;
-    
-    
-    @Override
-	public String toString() {
-		return "Tickets [ticketId=" + ticketId + ", userId=" + userId + ", connectionId=" + connectionId
-				+ ", connectionType=" + connectionType + ", serviceType=" + serviceType + ", description=" + description
-				+ ", pincode=" + pincode + ", status=" + status + ", address=" + address + ", priority=" + priority
-				+ ", engineerId=" + engineerId + ", assignmentDate=" + assignmentDate + ", createdAt=" + createdAt
-				+ ", updatedAt=" + updatedAt + ", longitude=" + longitude + ", latitude=" + latitude + "]";
-	}
 }
- 

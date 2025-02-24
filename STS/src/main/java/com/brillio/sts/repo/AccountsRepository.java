@@ -27,15 +27,20 @@ public interface AccountsRepository extends JpaRepository<Accounts, Integer>{
 	List<Accounts> findByAccountStatusAndRole(String status, String role);
 
 	List<Accounts> findByAccountStatusAndPincodeAndRole(String status, int pincode, String role);
-		
+	
+	List<Accounts> findByPincode(int pincode); 
+	
 	List<Accounts> findByRoleAndPincode(String role,int pincode);
 	
 	List<Accounts> findByRoleAndPincodeAndAccountStatus(String role,int pincode,String accountStatus);
+	
+	List<Integer> findIdsByRoleAndPincode(String role,int pincode);
 	
 	long countByAccountStatusAndRoleInAndPincode(String accountStatus, List<String> roles, int pincode);
 
 	long countByAccountStatusAndRoleAndPincode(String accountStatus, String role, int pincode);
 	
+	Accounts getAccountById(int id);
 	
 
 }

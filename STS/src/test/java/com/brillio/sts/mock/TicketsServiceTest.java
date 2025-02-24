@@ -21,7 +21,8 @@ import com.brillio.sts.service.ConnectionsService;
 import com.brillio.sts.service.EmailService;
 import com.brillio.sts.service.LeaveHistoryService;
 import com.brillio.sts.service.TicketsService;
- 
+
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Arrays;
@@ -62,6 +63,7 @@ class TicketsServiceTest {
     private TicketsService ticketsService;
  
     private Tickets ticket;
+    private Tickets ticket1;
     private Accounts userAccount;
     private Connections connection;
  
@@ -77,10 +79,25 @@ class TicketsServiceTest {
         ticket.setPincode(500001);
         ticket.setConnectionType("WIFI");
         ticket.setServiceType("INSTALLATION");
-        LocalDateTime nowLDT = LocalDateTime.ofInstant(new Date().toInstant(), ZoneId.systemDefault());
+        LocalDateTime nowLDT = Instant.now().atZone(ZoneId.systemDefault()).toLocalDateTime();
         ticket.setCreatedAt(nowLDT);
+        ticket.setUpdatedAt(LocalDateTime.now());
+        
+        ticket1 = new Tickets();
+        ticket1.setTicketId(1);
+        ticket1.setUserId(100);
+        ticket1.setEngineerId(200);
+        ticket1.setConnectionId(300);
+        ticket1.setStatus("PENDING");
+        ticket1.setPincode(500001);
+        ticket1.setConnectionType("WIFI");
+        ticket1.setServiceType("INSTALLATION");
+        LocalDateTime nowLDT1= Instant.now().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        ticket1.setCreatedAt(nowLDT1);
  
-        ticket.setUpdatedAt(new Date());
+        ticket.setUpdatedAt(LocalDateTime.now());
+        
+
  
         // Create a sample user account (for userId)
         userAccount = new Accounts();
@@ -113,7 +130,7 @@ class TicketsServiceTest {
  
         // Stub ticketHistoryService to do nothing (void method)
         // Stub connection update (setExpiryDate is called inside updateTicketStatus)
-        when(connectionsService.setExpiryDate(any(Connections.class))).thenReturn(new Date());
+        when(connectionsService.setExpiryDate(any(Connections.class))).thenReturn(LocalDateTime.now());
         // Stub email service call
         doNothing().when(emailService).sendTicketResolvedEmail(userAccount.getEmail(), ticket.getTicketId());
  
@@ -636,7 +653,7 @@ class TicketsServiceTest {
         // Execute & expect exception
         AccountNotFoundException exception = assertThrows(AccountNotFoundException.class, () -> spyService.getBestEngineerLocation(1));
  
-        // Assertion
+        // Assertion 
         assertEquals("Assigned engineer not found with ID: 200", exception.getMessage());
  
         // Verify interactions
@@ -658,9 +675,136 @@ class TicketsServiceTest {
         when(ticketsRepository.findByStatusAndPincode(Constants.REJECTED, 500001)).thenReturn(rejectedTickets);
         assertEquals(3, ticketsService.getRejectedTicketsByPincode(500001).size());
     }
+    
+    @Test
+    void testGetCompletedOrFailedTicketsByUser_Positive() {
+        when(ticketsRepository.findByUserIdAndStatusIn(101, List.of("COMPLETED", "FAILED")))
+                .thenReturn(List.of(ticket));
+
+        List<Tickets> result = ticketsService.getCompletedOrFailedTicketsByUser(101);
+
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
+        assertEquals("COMPLETED", result.get(0).getStatus());
+    }
+
+    // ❌ NEGATIVE: Get Completed/Failed Tickets by User (No Tickets Found)
+    @Test
+    void testGetCompletedOrFailedTicketsByUser_Negative() {
+        when(ticketsRepository.findByUserIdAndStatusIn(999, List.of("COMPLETED", "FAILED")))
+                .thenReturn(Collections.emptyList());
+
+        List<Tickets> result = ticketsService.getCompletedOrFailedTicketsByUser(999);
+
+        assertTrue(result.isEmpty());
+    }
+
+    // ✅ POSITIVE: Get Completed/Failed Tickets by Engineer
+    @Test
+    void testGetCompletedOrFailedTicketsByEngineer_Positive() {
+        when(ticketsRepository.findByEngineerIdAndStatusIn(201, List.of("COMPLETED", "FAILED")))
+                .thenReturn(List.of(ticket,ticket1));
+
+        List<Tickets> result = ticketsService.getCompletedOrFailedTicketsByEngineer(201);
+
+        assertFalse(result.isEmpty());
+        assertEquals(2, result.size());
+    }
+
+    // ❌ NEGATIVE: Get Completed/Failed Tickets by Engineer (Invalid Engineer ID)
+    @Test
+    void testGetCompletedOrFailedTicketsByEngineer_Negative() {
+        when(ticketsRepository.findByEngineerIdAndStatusIn(999, List.of("COMPLETED", "FAILED")))
+                .thenReturn(Collections.emptyList());
+
+        List<Tickets> result = ticketsService.getCompletedOrFailedTicketsByEngineer(999);
+
+        assertTrue(result.isEmpty());
+    }
+
+    // ✅ POSITIVE: Get Completed/Failed Tickets by Admin (Pincode)
+    @Test
+    void testGetCompletedOrFailedTicketsByAdmin_Positive() {
+        when(ticketsRepository.findByPincodeAndStatusIn(12345, List.of("COMPLETED", "FAILED")))
+                .thenReturn(List.of(ticket,ticket1));
+
+        List<Tickets> result = ticketsService.getCompletedOrFailedTicketsByAdmin(12345);
+
+        assertFalse(result.isEmpty());
+        assertEquals(2, result.size());
+    }
+
+    // ❌ NEGATIVE: Get Completed/Failed Tickets by Admin (No Data)
+    @Test
+    void testGetCompletedOrFailedTicketsByAdmin_Negative() {
+        when(ticketsRepository.findByPincodeAndStatusIn(99999, List.of("COMPLETED", "FAILED")))
+                .thenReturn(Collections.emptyList());
+
+        List<Tickets> result = ticketsService.getCompletedOrFailedTicketsByAdmin(99999);
+
+        assertTrue(result.isEmpty());
+    }
+
+    // ✅ POSITIVE: Count Tickets by Status & Pincode
+    @Test
+    void testCountByStatusAndPincode_Positive() {
+        when(ticketsRepository.countByStatusAndPincode("IN_PROGRESS", 12345)).thenReturn(5L);
+
+        Long count = ticketsService.countByStatusAndPincode("IN_PROGRESS", 12345);
+
+        assertEquals(5L, count);
+    }
+
+    // ❌ NEGATIVE: Count Tickets by Status & Pincode (Invalid Pincode)
+    @Test
+    void testCountByStatusAndPincode_Negative() {
+        when(ticketsRepository.countByStatusAndPincode("IN_PROGRESS", 99999)).thenReturn(0L);
+
+        Long count = ticketsService.countByStatusAndPincode("IN_PROGRESS", 99999);
+
+        assertEquals(0L, count);
+    }
+
+    // ✅ POSITIVE: Get Total Ticket Count by Pincode
+    @Test
+    void testGetTotalTicketCount_Positive() {
+        when(ticketsRepository.countByStatusInAndPincode(Arrays.asList("FAILED", "IN_PROGRESS", "DEFERRED", "REJECTED"), 12345))
+                .thenReturn(10L);
+
+        long count = ticketsService.getTotalTicketCount(12345);
+
+        assertEquals(10L, count);
+    }
+
+    // ❌ NEGATIVE: Get Total Ticket Count by Pincode (No Tickets)
+    @Test
+    void testGetTotalTicketCount_Negative() {
+        when(ticketsRepository.countByStatusInAndPincode(anyList(), eq(99999)))
+                .thenReturn(0L);
+
+        long count = ticketsService.getTotalTicketCount(99999);
+
+        assertEquals(0L, count);
+    }
+
+    // ✅ POSITIVE: Get Pending Ticket Count by Engineer ID
+    @Test
+    void testGetPendingTicketCount_Positive() {
+        when(ticketsRepository.countByStatusAndEngineerId("PENDING", 201L)).thenReturn(3);
+
+        int count = ticketsService.getPendingTicketCount(201L);
+
+        assertEquals(3, count);
+    }
+
+    // ❌ NEGATIVE: Get Pending Ticket Count (Invalid Engineer ID)
+    @Test
+    void testGetPendingTicketCount_Negative() {
+        when(ticketsRepository.countByStatusAndEngineerId("PENDING", 999L)).thenReturn(0);
+
+        int count = ticketsService.getPendingTicketCount(999L);
+
+        assertEquals(0, count);
+    }
  
 }
- 
- 
- 
- 

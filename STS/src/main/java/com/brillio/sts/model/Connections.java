@@ -1,9 +1,8 @@
 package com.brillio.sts.model;
-
-import java.util.Date;
-
-
-
+ 
+import java.time.LocalDateTime;
+ 
+ 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -15,7 +14,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-
+ 
 @Entity
 @Table(name = "CONNECTIONS")
 @Getter
@@ -24,33 +23,31 @@ import lombok.ToString;
 @AllArgsConstructor 
 @ToString
 public class Connections {
-    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "CONNECTION_ID")
     private int connectionId;
-
+ 
     @Column(name = "USER_ID")
     private int userId;
-
+ 
     @Column(name = "CONNECTION_TYPE")
     private String connectionType;
-
+ 
     @Column(name = "START_DATE")
-    private Date startDate;
-
+    private LocalDateTime startDate;
+ 
     @Column(name = "VALIDITY_PERIOD")
     private int validityPeriod;
-
+ 
     @Column(name = "EXPIRY_DATE")
-    private Date expiryDate;
-
+    private LocalDateTime expiryDate;
+ 
     @Column(name = "END_DATE")
-    private Date endDate;
-
+    private LocalDateTime endDate;
+ 
     @Column(name = "STATUS")
     private String status;
-    
 
+ 
 }
-

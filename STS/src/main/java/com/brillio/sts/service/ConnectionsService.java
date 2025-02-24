@@ -1,6 +1,7 @@
 package com.brillio.sts.service;
  
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
@@ -59,16 +60,18 @@ public class ConnectionsService {
         return connectionsRepository.findByuserIdAndStatus(userId, "ACTIVE");
     }
     
-    public Date setExpiryDate(Connections connection) {
+    public LocalDateTime setExpiryDate(Connections connection) {
         if (connection.getStartDate() != null) {
-            logger.info("Setting expiry date for connection ID: "+ connection.getConnectionId());
-            LocalDate startDate = connection.getStartDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            LocalDate expiryDate = startDate.plusMonths(connection.getValidityPeriod());
-            Date expiry = Date.from(expiryDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-            logger.info("Expiry date set to: "+ expiry);
-            return expiry;
+            logger.info("Setting expiry date for connection ID: " + connection.getConnectionId());
+            
+            LocalDateTime expiryDateTime = connection.getStartDate().plusMonths(connection.getValidityPeriod());
+            
+            logger.info("Expiry date set to: " + expiryDateTime);
+            return expiryDateTime;
         }
-        logger.warn("Start date is null for connection ID: "+ connection.getConnectionId());
+ 
+        // Log warning before returning null
+        logger.warn("Start date is null for connection ID: " + connection.getConnectionId());
         return null;
     }
 }

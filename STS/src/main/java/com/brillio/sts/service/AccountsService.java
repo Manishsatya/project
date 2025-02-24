@@ -2,7 +2,6 @@ package com.brillio.sts.service;
  
 import java.util.Collections;
 
-
 import java.util.List;
 import java.util.Optional;
  
@@ -227,7 +226,7 @@ public class AccountsService implements UserDetailsService {
     
     
  
-	 	public Accounts updateUser(int id, Accounts updatedUser) {
+	 public Accounts updateUser(int id, Accounts updatedUser) {
 	        logger.info("Updating user with ID: "+ id);
 	        if (accountsRepository.existsById(id)) {
 	            updatedUser.setId(id);
@@ -236,7 +235,6 @@ public class AccountsService implements UserDetailsService {
 	        logger.error("User with ID not found"+ id);
 	        return null;
 	    }
-	 	
  
 	    public List<Accounts> searchByRole(String role) {
 	        logger.info("Fetching accounts by role: "+ role);

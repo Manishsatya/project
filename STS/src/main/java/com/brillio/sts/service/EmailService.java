@@ -4,7 +4,8 @@ import org.apache.log4j.Logger;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
- 
+
+
 @Service
 public class EmailService {
  
@@ -116,7 +117,8 @@ public class EmailService {
         sendEmail(userEmail, subject, body);
     }
  
-    // ✅ 9. Email for account rejection
+    
+    // 9. Email for account rejection
     public void sendAccountRejectionEmail(String userEmail, String firstName) {
         logger.info("Sending account rejection email for user: "+ firstName);
         String subject = "Your Account Has Been Rejected";

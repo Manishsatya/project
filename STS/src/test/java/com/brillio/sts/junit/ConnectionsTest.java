@@ -2,21 +2,20 @@ package com.brillio.sts.junit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.Date;
- 
+import java.time.LocalDateTime;
+
 import org.junit.jupiter.api.Test;
- 
+
 import com.brillio.sts.model.Connections;
- 
+
 class ConnectionsTest {
- 
-    // ✅ 1. Test Getters and Setters (Positive)
+
     @Test
     void testGettersAndSetters() {
         Connections connection = new Connections();
-        Date startDate = new Date();
-        Date expiryDate = new Date();
- 
+        LocalDateTime startDate = LocalDateTime.now();
+        LocalDateTime expiryDate = LocalDateTime.now().plusMonths(12);
+
         connection.setConnectionId(1);
         connection.setUserId(101);
         connection.setConnectionType("DTH");
@@ -25,7 +24,7 @@ class ConnectionsTest {
         connection.setExpiryDate(expiryDate);
         connection.setEndDate(null);
         connection.setStatus("ACTIVE");
- 
+
         assertEquals(1, connection.getConnectionId());
         assertEquals(101, connection.getUserId());
         assertEquals("DTH", connection.getConnectionType());
@@ -35,22 +34,20 @@ class ConnectionsTest {
         assertNull(connection.getEndDate());
         assertEquals("ACTIVE", connection.getStatus());
     }
- 
-    // ✅ 2. Test No-Args Constructor (Positive)
+
     @Test
     void testNoArgsConstructor() {
         Connections newConnection = new Connections();
         assertNotNull(newConnection);
     }
- 
-    // ✅ 3. Test All-Args Constructor (Positive)
+
     @Test
-     void testAllArgsConstructor() {
-        Date startDate = new Date();
-        Date expiryDate = new Date();
- 
+    void testAllArgsConstructor() {
+        LocalDateTime startDate = LocalDateTime.now();
+        LocalDateTime expiryDate = LocalDateTime.now().plusMonths(6);
+
         Connections newConnection = new Connections(1, 101, "WIFI", startDate, 6, expiryDate, null, "INACTIVE");
- 
+
         assertEquals(1, newConnection.getConnectionId());
         assertEquals(101, newConnection.getUserId());
         assertEquals("WIFI", newConnection.getConnectionType());
@@ -60,24 +57,22 @@ class ConnectionsTest {
         assertNull(newConnection.getEndDate());
         assertEquals("INACTIVE", newConnection.getStatus());
     }
- 
-    // ✅ 4. Test toString() Method (Positive)
+
     @Test
-     void testToString() {
-        Date startDate = new Date();
-        Date expiryDate = new Date();
- 
+    void testToString() {
+        LocalDateTime startDate = LocalDateTime.now();
+        LocalDateTime expiryDate = LocalDateTime.now().plusMonths(6);
+
         Connections newConnection = new Connections(1, 101, "WIFI", startDate, 6, expiryDate, null, "INACTIVE");
- 
+
         String expectedString = "Connections(connectionId=1, userId=101, connectionType=WIFI, startDate="
                 + startDate + ", validityPeriod=6, expiryDate=" + expiryDate + ", endDate=null, status=INACTIVE)";
- 
+
         assertEquals(expectedString, newConnection.toString());
     }
- 
-    // ❌ 5. Negative Test: Getters and Setters with Invalid Data
+
     @Test
-     void testNegativeGettersAndSetters() {
+    void testNegativeGettersAndSetters() {
         Connections connection = new Connections();
         connection.setConnectionId(-1); // ❌ Negative ID
         connection.setUserId(-101); // ❌ Negative User ID
@@ -85,9 +80,9 @@ class ConnectionsTest {
         connection.setStartDate(null); // ❌ Null Start Date
         connection.setValidityPeriod(-6); // ❌ Negative Validity Period
         connection.setExpiryDate(null); // ❌ Null Expiry Date
-        connection.setEndDate(new Date()); // ❌ Should be null
+        connection.setEndDate(LocalDateTime.now()); // ❌ Should be null
         connection.setStatus("Unknown"); // ❌ Invalid Status
- 
+
         assertNotEquals(1, connection.getConnectionId());
         assertNotEquals(101, connection.getUserId());
         assertNotEquals("DTH", connection.getConnectionType());
@@ -97,25 +92,23 @@ class ConnectionsTest {
         assertNotNull(connection.getEndDate()); // ❌ Should be null
         assertNotEquals("ACTIVE", connection.getStatus());
     }
- 
-    // ❌ 6. Negative Test: toString() should not match incorrect format
+
     @Test
-     void testNegativeToString() {
-        Date startDate = null; // ❌ Null Timestamp
-        Connections connection = new Connections(-1, -101, "", startDate, -6, null, new Date(), "Unknown");
- 
+    void testNegativeToString() {
+        LocalDateTime startDate = null; // ❌ Null Timestamp
+        Connections connection = new Connections(-1, -101, "", startDate, -6, null, LocalDateTime.now(), "Unknown");
+
         String unexpectedResult = "Connections [connectionId=-1, userId=-101, connectionType=, startDate=null, "
                 + "validityPeriod=-6, expiryDate=null, endDate=someDate, status=Unknown]";
- 
+
         assertNotEquals(unexpectedResult, connection.toString());
     }
- 
-    // ❌ 7. Negative Test: Constructor with Invalid Data
+
     @Test
-     void testNegativeConstructor() {
-        Date startDate = null; // ❌ Null Start Date
-        Connections connection = new Connections(-1, -101, "", startDate, -6, null, new Date(), "Unknown");
- 
+    void testNegativeConstructor() {
+        LocalDateTime startDate = null; // ❌ Null Start Date
+        Connections connection = new Connections(-1, -101, "", startDate, -6, null, LocalDateTime.now(), "Unknown");
+
         assertNotEquals(1, connection.getConnectionId());
         assertNotEquals(101, connection.getUserId());
         assertNotEquals("DTH", connection.getConnectionType());

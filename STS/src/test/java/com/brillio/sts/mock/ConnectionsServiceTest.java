@@ -3,12 +3,10 @@ package com.brillio.sts.mock;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
  
-import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.Date;
  
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,8 +34,8 @@ class ConnectionsServiceTest {
  
     @BeforeEach
     void setUp() {
-        mockConnection1 = new Connections(1, 101, "DTH", new Date(), 12, null, null, "ACTIVE");
-        mockConnection2 = new Connections(2, 102, "WIFI", new Date(), 6, null, null, "INACTIVE");
+        mockConnection1 = new Connections(1, 101, "DTH", LocalDateTime.now(), 12, null, null, "ACTIVE");
+        mockConnection2 = new Connections(2, 102, "WIFI", LocalDateTime.now(), 6, null, null, "INACTIVE");
     }
  
     @Test
@@ -80,10 +78,55 @@ class ConnectionsServiceTest {
         assertThrows(ConnectionNotFoundException.class, () -> connectionsService.searchById(999));
         verify(connectionsRepository, times(1)).findById(999);
     }
+    
+    @Test
+    void testSearchByUserId_ShouldReturnConnections() {
+        when(connectionsRepository.findByuserId(101)).thenReturn(Arrays.asList(mockConnection1, mockConnection2));
+
+        List<Connections> connections = connectionsService.searchByUserId(101);
+
+        assertNotNull(connections);
+        assertEquals(2, connections.size());
+        verify(connectionsRepository, times(1)).findByuserId(101);
+    }
+
+    @Test
+    void testSearchByUserId_NoConnectionsFound_ShouldReturnEmptyList() {
+        when(connectionsRepository.findByuserId(999)).thenReturn(Arrays.asList());
+
+        List<Connections> connections = connectionsService.searchByUserId(999);
+
+        assertNotNull(connections);
+        assertTrue(connections.isEmpty());
+        verify(connectionsRepository, times(1)).findByuserId(999);
+    }
+
+    @Test
+    void testSearchByUserAndStatus_ShouldReturnActiveConnections() {
+        when(connectionsRepository.findByuserIdAndStatus(101, "ACTIVE")).thenReturn(Arrays.asList(mockConnection1));
+
+        List<Connections> activeConnections = connectionsService.searchByUserAndStatus(101);
+
+        assertNotNull(activeConnections);
+        assertEquals(1, activeConnections.size());
+        assertEquals("ACTIVE", activeConnections.get(0).getStatus());
+        verify(connectionsRepository, times(1)).findByuserIdAndStatus(101, "ACTIVE");
+    }
+
+    @Test
+    void testSearchByUserAndStatus_NoActiveConnections_ShouldReturnEmptyList() {
+        when(connectionsRepository.findByuserIdAndStatus(102, "ACTIVE")).thenReturn(Arrays.asList());
+
+        List<Connections> activeConnections = connectionsService.searchByUserAndStatus(102);
+
+        assertNotNull(activeConnections);
+        assertTrue(activeConnections.isEmpty());
+        verify(connectionsRepository, times(1)).findByuserIdAndStatus(102, "ACTIVE");
+    }
  
     @Test
     void testAddConnections_ShouldReturnSavedConnection() {
-        Connections newConnection = new Connections(3, 103, "LANDLINE", new Date(), 12, null, null, null);
+        Connections newConnection = new Connections(3, 103, "LANDLINE", LocalDateTime.now(), 12, null, null, null);
         when(connectionsRepository.save(any(Connections.class))).thenReturn(newConnection);
  
         Connections savedConnection = connectionsService.addConnections(newConnection);
@@ -96,90 +139,22 @@ class ConnectionsServiceTest {
     @Test
     void testAddConnections_WithMissingFields_ShouldThrowException() {
         Connections invalidConnection = new Connections();
-        assertThrows(NullPointerException.class, () -> connectionsService.addConnections(invalidConnection));}
- 
-    @Test
-    void testSearchByUserId_ShouldReturnConnections() {
-        when(connectionsRepository.findByuserId(101)).thenReturn(Arrays.asList(mockConnection1));
- 
-        List<Connections> connections = connectionsService.searchByUserId(101);
- 
-        assertNotNull(connections);
-        assertEquals(1, connections.size());
-        verify(connectionsRepository, times(1)).findByuserId(101);
+        assertThrows(NullPointerException.class, () -> connectionsService.addConnections(invalidConnection));
     }
  
-    @Test
-    void testSearchByUserId_ShouldReturnMultipleConnections() {
-        when(connectionsRepository.findByuserId(101)).thenReturn(Arrays.asList(mockConnection1, mockConnection2));
- 
-        List<Connections> connections = connectionsService.searchByUserId(101);
- 
-        assertNotNull(connections);
-        assertEquals(2, connections.size());
-        verify(connectionsRepository, times(1)).findByuserId(101);
-    }
- 
-    @Test
-    void testSearchByUserId_NoMatchingConnections_ShouldReturnEmptyList() {
-        when(connectionsRepository.findByuserId(999)).thenReturn(Arrays.asList());
- 
-        List<Connections> connections = connectionsService.searchByUserId(999);
- 
-        assertNotNull(connections);
-        assertEquals(0, connections.size());
-        verify(connectionsRepository, times(1)).findByuserId(999);
-    }
- 
-    @Test
-    void testSearchByUserAndStatus_ShouldReturnActiveConnections() {
-        when(connectionsRepository.findByuserIdAndStatus(101, "ACTIVE")).thenReturn(Arrays.asList(mockConnection1));
- 
-        List<Connections> activeConnections = connectionsService.searchByUserAndStatus(101);
- 
-        assertNotNull(activeConnections);
-        assertEquals(1, activeConnections.size());
-        assertEquals("ACTIVE", activeConnections.get(0).getStatus());
-        verify(connectionsRepository, times(1)).findByuserIdAndStatus(101, "ACTIVE");
-    }
- 
-    @Test
-    void testSearchByUserAndStatus_ShouldReturnMultipleActiveConnections() {
-        when(connectionsRepository.findByuserIdAndStatus(101, "ACTIVE"))
-                .thenReturn(Arrays.asList(mockConnection1, new Connections(3, 101, "DTH", new Date(), 6, null, null, "ACTIVE")));
- 
-        List<Connections> activeConnections = connectionsService.searchByUserAndStatus(101);
- 
-        assertNotNull(activeConnections);
-        assertEquals(2, activeConnections.size());
-        verify(connectionsRepository, times(1)).findByuserIdAndStatus(101, "ACTIVE");
-    }
- 
-    @Test
-    void testSearchByUserAndStatus_NoActiveConnections_ShouldReturnEmptyList() {
-        when(connectionsRepository.findByuserIdAndStatus(102, "ACTIVE")).thenReturn(Arrays.asList());
- 
-        List<Connections> activeConnections = connectionsService.searchByUserAndStatus(102);
- 
-        assertNotNull(activeConnections);
-        assertEquals(0, activeConnections.size());
-        verify(connectionsRepository, times(1)).findByuserIdAndStatus(102, "ACTIVE");
-    }
-
     @Test
     void testSetExpiryDate_ValidStartDateAndValidityPeriod_ShouldReturnCorrectExpiryDate() {
-        LocalDate startDate = LocalDate.of(2024, 1, 1); // Jan 1, 2024
+        LocalDateTime startDate = LocalDateTime.of(2024, 1, 1, 0, 0);
         int validityPeriod = 12; // 12 months
-        mockConnection1.setStartDate(Date.from(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        mockConnection1.setStartDate(startDate);
         mockConnection1.setValidityPeriod(validityPeriod);
  
-        Date expiryDate = connectionsService.setExpiryDate(mockConnection1);
+        LocalDateTime expiryDate = connectionsService.setExpiryDate(mockConnection1);
  
         assertNotNull(expiryDate, "Expiry date should not be null.");
-        LocalDate expectedExpiryDate = startDate.plusMonths(validityPeriod);
-        LocalDate actualExpiryDate = expiryDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
- 
-        assertEquals(expectedExpiryDate, actualExpiryDate, "Expiry date does not match expected date.");
+        LocalDateTime expectedExpiryDate = startDate.plusMonths(validityPeriod);
+        
+        assertEquals(expectedExpiryDate, expiryDate, "Expiry date does not match expected date.");
     }
  
     @Test
@@ -187,8 +162,8 @@ class ConnectionsServiceTest {
         mockConnection1.setStartDate(null);
         mockConnection1.setValidityPeriod(12);
  
-        Date expiryDate = connectionsService.setExpiryDate(mockConnection1);
+        LocalDateTime expiryDate = connectionsService.setExpiryDate(mockConnection1);
  
         assertNull(expiryDate, "Expiry date should be null when start date is missing.");
-}
+    }
 }
