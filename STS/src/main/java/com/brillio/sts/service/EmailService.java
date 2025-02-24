@@ -96,7 +96,7 @@ public class EmailService {
     public void sendAccountApprovalEmail(String userEmail, String firstName) {
         logger.info("Sending account approval email for user: "+ firstName);
         String subject = "Your Account Has Been Approved!";
-        String body = "Dear " + firstName + ",\n\n" +
+        String body = "Hi " + firstName + ",\n\n" +
                 "Congratulations! Your account has been APPROVED.\n" +
                 "You can now log in and start using our services.\n\n" +
                 "Best Regards,\nSwiftLink Customer Support\n" +
@@ -122,7 +122,7 @@ public class EmailService {
     public void sendAccountRejectionEmail(String userEmail, String firstName) {
         logger.info("Sending account rejection email for user: "+ firstName);
         String subject = "Your Account Has Been Rejected";
-        String body = "Dear " + firstName + ",\n\n" +
+        String body = "Hello " + firstName + ",\n\n" +
                 "Unfortunately, your account request has been REJECTED.\n" +
                 "If you believe this was a mistake, please contact our support team.\n\n" +
                 "Best Regards,\nSwiftLink Customer Support\n" +

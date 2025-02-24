@@ -87,6 +87,17 @@ public class ControllerExceptionHandler {
 	        );
 	    }
 	    
+	    @ExceptionHandler(HazardNotFoundException.class)
+	    @ResponseStatus(HttpStatus.NOT_FOUND)
+	    public ErrorMessage handleHazardNotFoundException(HazardNotFoundException ex, WebRequest request) {
+	        return new ErrorMessage(
+	                HttpStatus.NOT_FOUND.value(),
+	                new Date(),
+	                ex.getMessage(),
+	                request.getDescription(false)
+	        );
+	    }
+	    
 	    @ExceptionHandler(EngineerNotFoundException.class)
 	    @ResponseStatus(HttpStatus.NOT_FOUND)
 	    public ErrorMessage handleEngineerNotFoundException(EngineerNotFoundException ex, WebRequest request) {

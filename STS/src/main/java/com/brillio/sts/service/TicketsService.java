@@ -362,15 +362,15 @@ public class TicketsService {
 	
 	    availableEngineers.sort(Comparator.comparingInt(engineer ->
  
-	        (int) ticketsRepository.countByEngineerIdAndStatus(engineer.getId(), "IN_PROGRESS")
+	        (int) ticketsRepository.countByEngineerIdAndStatus(engineer.getId(), Constants.IN_PROGRESS)
  
 	    ));
 	
-	    int minWorkload = (int) ticketsRepository.countByEngineerIdAndStatus(availableEngineers.get(0).getId(), "IN_PROGRESS");
+	    int minWorkload = (int) ticketsRepository.countByEngineerIdAndStatus(availableEngineers.get(0).getId(), Constants.IN_PROGRESS);
 	
 	    List<Accounts> leastBusyEngineers = availableEngineers.stream()
  
-	        .filter(e -> ticketsRepository.countByEngineerIdAndStatus(e.getId(), "IN_PROGRESS") == minWorkload)
+	        .filter(e -> ticketsRepository.countByEngineerIdAndStatus(e.getId(), Constants.IN_PROGRESS) == minWorkload)
  
 	        .toList();
 	
@@ -547,7 +547,7 @@ public class TicketsService {
 	}
 	
 	public List<Tickets> getCompletedOrFailedTicketsByUser(int userId) {
-        return ticketsRepository.findByUserIdAndStatusIn(userId,List.of("COMPLETED", "FAILED") );
+        return ticketsRepository.findByUserIdAndStatusIn(userId,List.of(Constants.COMPLETED, Constants.FAILED) );
     }
 	
 	/**
@@ -560,7 +560,7 @@ public class TicketsService {
 	 *@author Soniya.Pol
 	 */
 	public List<Tickets> getCompletedOrFailedTicketsByEngineer(int engineerId) {
-        return ticketsRepository.findByEngineerIdAndStatusIn(engineerId,List.of("COMPLETED", "FAILED") );
+        return ticketsRepository.findByEngineerIdAndStatusIn(engineerId,List.of(Constants.COMPLETED, Constants.FAILED) );
     }
 	
 	
@@ -573,7 +573,7 @@ public class TicketsService {
 	 * @return A list of tickets in the specified pincode that are either in "COMPLETED" or "FAILED" status.
 	 */
 	public List<Tickets> getCompletedOrFailedTicketsByAdmin(int pincode) {
-        return ticketsRepository.findByPincodeAndStatusIn(pincode, List.of("COMPLETED", "FAILED"));
+        return ticketsRepository.findByPincodeAndStatusIn(pincode, List.of(Constants.COMPLETED, Constants.FAILED));
     }
 	
 	
@@ -581,7 +581,7 @@ public class TicketsService {
 	 * Counts the number of tickets with a specific status in a given pincode.
 	 * This method helps in tracking the workload or issue resolution progress
 	 * within a particular geographic area.
-	 * @param status  The status of the tickets to be counted (e.g., "PENDING", "IN_PROGRESS", "COMPLETED").
+	 * @param status  The status of the tickets to be counted (e.g., "PENDING", Constants.IN_PROGRESS, "COMPLETED").
 	 * @param pincode The pincode for which the ticket count needs to be retrieved.
 	 * @return The total number of tickets matching the given status and pincode.
 	 *
@@ -599,7 +599,7 @@ public class TicketsService {
 	 * @return The total number of tickets with statuses such as "Failed", "IN_PROGRESS", "DEFERRED", and "REJECTED".
 	 */
 	public long getTotalTicketCount(int pincode) {
-        List<String> statuses = Arrays.asList("Failed", "IN_PROGRESS", "DEFERRED", "REJECTED");
+        List<String> statuses = Arrays.asList(Constants.FAILED, Constants.IN_PROGRESS,Constants.DEFERRED,Constants.REJECTED);
         return ticketsRepository.countByStatusInAndPincode(statuses, pincode);
     }
 	
@@ -612,6 +612,6 @@ public class TicketsService {
 	 * @return The number of tickets with status "PENDING" assigned to the given engineer.
 	 */
 	 public int getPendingTicketCount(Long engineerId) {
-	        return ticketsRepository.countByStatusAndEngineerId("PENDING", engineerId);
+	        return ticketsRepository.countByStatusAndEngineerId(Constants.PENDING, engineerId);
 	    }
 }

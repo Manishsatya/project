@@ -266,8 +266,6 @@ class TicketsServiceTest {
     @Test
     void testGetPendingTicketsByPincode_WithTickets() {
         int pincode = 500001;
-        // Create sample tickets that the repository should return
-        Tickets ticket1 = new Tickets();
         ticket1.setTicketId(1);
         ticket1.setStatus(Constants.IN_PROGRESS);
         ticket1.setPincode(pincode);

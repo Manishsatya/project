@@ -5,6 +5,7 @@
  
 package com.brillio.sts.service;
  
+import com.brillio.sts.exception.HazardNotFoundException;
 import com.brillio.sts.model.Hazards;
 import com.brillio.sts.repo.HazardsRepository;
 import org.apache.log4j.Logger;
@@ -50,7 +51,7 @@ public class HazardsService {
         logger.info("Searching hazard by ID: " + id);
         return hazardsRepository.findById(id)
                 .orElseThrow(() -> {
-                    logger.error("Hazard not found with ID: " + id);
+                    logger.error("Hazard with Id" + id + " not found");
                     throw new NoSuchElementException("Hazard not found with ID: " + id);
                 });
     }
@@ -112,7 +113,7 @@ public class HazardsService {
         Hazards existingHazard = hazardsRepository.findById(hazardId)
                 .orElseThrow(() -> {
                     logger.error("Hazard not found with ID: " + hazardId);
-                    throw new RuntimeException("Hazard not found with id: " + hazardId);
+                    throw new HazardNotFoundException("Hazard not found with id: " + hazardId);
                 });
      
        
@@ -121,7 +122,7 @@ public class HazardsService {
         );
      
         
-        if (!existingHazards.isEmpty() && !existingHazards.stream().anyMatch(h -> h.getHazardId() == hazardId) && !"INACTIVE".equals(hazardDetails.getHazardStatus())) {
+        if (!existingHazards.isEmpty() && !existingHazards.stream().noneMatch(h -> h.getHazardId() == hazardId) && !"INACTIVE".equals(hazardDetails.getHazardStatus())) {
             logger.error("Duplicate active hazard found for name: " + hazardDetails.getHazardName() + ", location: " + hazardDetails.getHazardLocation() + ", and pincode: " + hazardDetails.getHazardPincode());
             throw new IllegalArgumentException("An active hazard with the same name, address, and pincode already exists.");
         }
